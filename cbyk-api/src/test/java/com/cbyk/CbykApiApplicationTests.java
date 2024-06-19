@@ -14,6 +14,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -44,6 +45,8 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 public class CbykApiApplicationTests {
 	
 	private final String BASE_URL = "/cbyk-api";
+	private final String USERNAME = "user";
+    private final String PASSWORD = "password";
 
     @Autowired
     private MockMvc mockMvc;
@@ -72,7 +75,9 @@ public class CbykApiApplicationTests {
 	void testSave() throws Exception {
 		given( contaService.save( any( ContaRequest.class ) ) ).willReturn( contaResponse );
 
-		this.mockMvc.perform( post( BASE_URL + "/save" ).contentType( MediaType.APPLICATION_JSON )
+		this.mockMvc.perform( post( BASE_URL + "/save" )
+			.with( httpBasic( USERNAME, PASSWORD ) )
+			.contentType( MediaType.APPLICATION_JSON )
 			.content( objectMapper.writeValueAsString( contaRequest ) ) )
 			.andExpect( status().isCreated() )
 			.andExpect( jsonPath( "$.descricao", is( "Conta de Luz" ) ) );
@@ -85,7 +90,9 @@ public class CbykApiApplicationTests {
 		given( contaService.findPorId( anyLong() ) ).willReturn( contaResponse );
 		given( contaService.update( any( ContaUpdateRequest.class ) ) ).willReturn( contaResponse );
 
-		mockMvc.perform( put( BASE_URL + "/atualizar-conta/1" ).contentType( MediaType.APPLICATION_JSON )
+		mockMvc.perform( put( BASE_URL + "/atualizar-conta/1" )
+			.with( httpBasic( USERNAME, PASSWORD ) )
+			.contentType( MediaType.APPLICATION_JSON )
 			.content( objectMapper.writeValueAsString( contaUpdateRequest ) ) )
 			.andExpect( status().isOk() )
 			.andExpect( jsonPath( "$.descricao", is( "Conta de Luz" ) ) );
@@ -100,6 +107,7 @@ public class CbykApiApplicationTests {
 		given( contaService.update( any( ContaUpdateRequest.class ) ) ).willReturn( contaResponse );
 
 		mockMvc.perform( put( BASE_URL + "/atualizar-situacao/1?situacao=" + SituacaoContaEnum.PAGA.name() )
+			.with( httpBasic( USERNAME, PASSWORD ) )
 			.contentType( MediaType.APPLICATION_JSON ) )
 			.andExpect( status().isOk() )
 			.andExpect( jsonPath( "$.situacao", is( SituacaoContaEnum.PAGA.name() ) ) );
@@ -112,7 +120,8 @@ public class CbykApiApplicationTests {
 	void testFindAllPageable() throws Exception {
 		given( contaService.findAllPageable( any( PageRequest.class ) ) ).willReturn( Arrays.asList( contaResponse ) );
 
-		mockMvc.perform( get( BASE_URL + "/findAllPageable?page=0&size=10" )
+		mockMvc.perform( get( BASE_URL + "/find-paginado?page=0&size=10" )
+			.with( httpBasic( USERNAME, PASSWORD ) )
 			.contentType( MediaType.APPLICATION_JSON ) )
 			.andExpect( status().isOk() )
 			.andExpect( jsonPath( "$[0].descricao", is( "Conta de Luz" ) ) );
@@ -124,7 +133,8 @@ public class CbykApiApplicationTests {
 	void testFindById() throws Exception {
 		given( contaService.findPorId( anyLong() ) ).willReturn( contaResponse );
 
-		mockMvc.perform( get( BASE_URL + "/find/1" )
+		mockMvc.perform( get( BASE_URL + "/find-por-id/1" )
+			.with( httpBasic( USERNAME, PASSWORD ) )
 			.contentType( MediaType.APPLICATION_JSON ) )
 			.andExpect( status().isOk() )
 			.andExpect( jsonPath( "$.descricao", is( "Conta de Luz" ) ) );
@@ -137,6 +147,7 @@ public class CbykApiApplicationTests {
 		given( contaService.findContasByDataVencimentoAndDescricao( any( LocalDate.class ), anyString() ) ).willReturn( Arrays.asList( contaResponse ) );
 
 		mockMvc.perform( get( BASE_URL + "/find-contas-a-pagar?dataVencimento=2024-06-27&descricao=Conta de Luz" )
+			.with( httpBasic( USERNAME, PASSWORD ) )
 			.contentType( MediaType.APPLICATION_JSON ) )
 			.andExpect( status().isOk() )
 			.andExpect( jsonPath( "$[0].descricao", is( "Conta de Luz" ) ) );
@@ -149,6 +160,7 @@ public class CbykApiApplicationTests {
 		given( contaService.calcularTotalPagoPorPeriodo( any( LocalDate.class ), any( LocalDate.class ) ) ).willReturn( totalContasPagasResponse );
 
 		mockMvc.perform( get( BASE_URL + "/total-pago-por-periodo?dataInicio=2024-06-16&dataFim=2024-06-18" )
+			.with( httpBasic( USERNAME, PASSWORD ) )
 			.contentType( MediaType.APPLICATION_JSON ) )
 			.andExpect( status().isOk() )
 			.andExpect( jsonPath( "$.valorTotal", is( 100.0 ) ) );
@@ -161,6 +173,7 @@ public class CbykApiApplicationTests {
 		doNothing().when( contaService ).delete( anyLong() );
 
 		mockMvc.perform( delete( BASE_URL + "/deletar/1" )
+			.with( httpBasic( USERNAME, PASSWORD ) )
 			.contentType( MediaType.APPLICATION_JSON ) )
 			.andExpect( status().isNoContent() );
 
