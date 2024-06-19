@@ -1,0 +1,7 @@
+com\cbyk\entities\Conta.class
+com\cbyk\enums\SituacaoContaEnum.class
+com\cbyk\requests\ContaRequest.class
+com\cbyk\requests\ContaUpdateRequest.class
+com\cbyk\responses\ContaResponse.class
+com\cbyk\utils\ObjectConverter.class
+com\cbyk\responses\TotalContasPagasResponse.class
