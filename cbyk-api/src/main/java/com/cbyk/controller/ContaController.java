@@ -26,15 +26,12 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.cbyk.entities.Conta;
 import com.cbyk.enums.SituacaoContaEnum;
 import com.cbyk.requests.ContaRequest;
 import com.cbyk.requests.ContaUpdateRequest;
 import com.cbyk.responses.ContaResponse;
 import com.cbyk.responses.TotalContasPagasResponse;
 import com.cbyk.service.ContaService;
-import com.cbyk.utils.FileServiceUtil;
-import com.cbyk.utils.ObjectConverter;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -56,11 +53,11 @@ public class ContaController {
 	public ResponseEntity<ContaResponse> save( @Valid @RequestBody ContaRequest request ) {
 		LOG.info( this.getClass().getName() + " - save - INICIO" );
 
-		ContaResponse clientResponse = contaService.save( request );
+		ContaResponse contaResponse = contaService.save( request );
 
 		LOG.info( this.getClass().getName() + " - save - FIM" );
 
-		return ResponseEntity.status( HttpStatus.CREATED ).body( clientResponse );
+		return ResponseEntity.status( HttpStatus.CREATED ).body( contaResponse );
 	}
 
 	@PutMapping( "/atualizar-conta/{contaId}" )
@@ -68,18 +65,15 @@ public class ContaController {
 	public ResponseEntity<ContaResponse> atualizarConta( @PathVariable Long contaId, @Valid @RequestBody ContaUpdateRequest request ) {
 		LOG.info( this.getClass().getName() + " - atualizarConta - INICIO" );
 
-		ContaResponse result = contaService.findPorId( contaId );
+		ContaResponse contaResponse = contaService.atualizarConta( contaId, request );
 
-		if ( Objects.isNull( result ) ) {
+		if ( Objects.isNull( contaResponse ) ) {
 			return ResponseEntity.notFound().build();
 		}
 
-		request.setId( result.getId() );
-		ContaResponse clientResponse = contaService.update( request );
-
 		LOG.info( this.getClass().getName() + " - atualizarConta - FIM" );
 
-		return ResponseEntity.ok( clientResponse );
+		return ResponseEntity.ok( contaResponse );
 	}
 	
 	@PutMapping( "/atualizar-situacao/{contaId}" )
@@ -87,18 +81,15 @@ public class ContaController {
 	public ResponseEntity<ContaResponse> atualizarSituacaoConta( @PathVariable Long contaId, @RequestParam SituacaoContaEnum situacao ) {
 		LOG.info( this.getClass().getName() + " - atualizarSituacaoConta - INICIO" );
 
-		ContaResponse result = contaService.findPorId( contaId );
+		ContaResponse contaResponse = contaService.atualizarSituacaoConta( contaId, situacao );
 
-		if ( Objects.isNull( result ) ) {
+		if ( Objects.isNull( contaResponse ) ) {
 			return ResponseEntity.notFound().build();
 		}
 
-		result.setSituacao( situacao );
-		result = contaService.update( ObjectConverter.convert( result, ContaUpdateRequest.class ) );
-
 		LOG.info( this.getClass().getName() + " - atualizarSituacaoConta - FIM" );
 
-		return ResponseEntity.ok( result );
+		return ResponseEntity.ok( contaResponse );
 	}
 	
 	@GetMapping( path = "/find-paginado", params = { "page", "size" } )
@@ -106,7 +97,7 @@ public class ContaController {
 	public ResponseEntity<List<ContaResponse>> findPaginado( @RequestParam int page, @RequestParam int size ) {
 		LOG.info( this.getClass().getName() + " - findAllPageable - INICIO" );
 
-		List<ContaResponse> contas = contaService.findAllPageable( PageRequest.of( page, size ) );
+		List<ContaResponse> contas = contaService.findPaginado( PageRequest.of( page, size ) );
 
 		if ( Objects.nonNull( contas ) ) {
 			return ResponseEntity.ok( contas );
@@ -166,9 +157,7 @@ public class ContaController {
 	public ResponseEntity<Void> importarContas( @RequestParam( "file" ) MultipartFile file ) {
 		LOG.info( this.getClass().getName() + " - importarContas - INICIO" );
 
-		List<Conta> contas = FileServiceUtil.extrairRegistros( file );
-
-		contaService.saveAll( contas );
+		contaService.importarContas( file );
 
 		LOG.info( this.getClass().getName() + " - importarContas - FIM" );
 

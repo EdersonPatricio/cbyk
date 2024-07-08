@@ -12,12 +12,16 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.cbyk.entities.Conta;
+import com.cbyk.enums.SituacaoContaEnum;
 import com.cbyk.repository.ContaRepository;
 import com.cbyk.requests.ContaRequest;
+import com.cbyk.requests.ContaUpdateRequest;
 import com.cbyk.responses.ContaResponse;
 import com.cbyk.responses.TotalContasPagasResponse;
+import com.cbyk.utils.FileServiceUtil;
 import com.cbyk.utils.ObjectConverter;
 
 @Service
@@ -30,19 +34,39 @@ public class ContaService {
 	public ContaResponse save( ContaRequest request ) {
 		return salvarConta( request );
 	}
+	
+	public ContaResponse atualizarConta( Long contaId, ContaUpdateRequest request ) {
+		ContaResponse result = findPorId( contaId );
 
-	public ContaResponse update( ContaRequest request ) {
+		if ( Objects.isNull( result ) ) {
+			return null;
+		}
+
+		request.setId( result.getId() );
+		
 		return salvarConta( request );
 	}
 
+	public ContaResponse atualizarSituacaoConta( Long contaId, SituacaoContaEnum situacao ) {
+		ContaResponse result = findPorId( contaId );
+
+		if ( Objects.isNull( result ) ) {
+			return null;
+		}
+
+		result.setSituacao( situacao );
+		
+		return salvarConta( ObjectConverter.convert( result, ContaUpdateRequest.class ) );
+	}
+	
 	private ContaResponse salvarConta( ContaRequest request ) {
 		Conta conta = ObjectConverter.convert( request, Conta.class );
 
 		return ObjectConverter.convert( contaRepository.save( conta ), ContaResponse.class );
 	}
 
-	public void saveAll( List<Conta> contas ) {
-		contaRepository.saveAll( contas );
+	public void saveAll( List<ContaRequest> contas ) {
+		contaRepository.saveAll( ObjectConverter.convertList( contas, Conta.class ) );
 	}
 
 	public ContaResponse findPorId( Long contaId ) {
@@ -61,7 +85,7 @@ public class ContaService {
 		return ObjectConverter.convertList( result, ContaResponse.class );
 	}
 
-	public List<ContaResponse> findAllPageable( Pageable pageable ) {
+	public List<ContaResponse> findPaginado( Pageable pageable ) {
 		Page<Conta> result = contaRepository.findAll( pageable );
 
 		return ObjectConverter.convertList( result.getContent(), ContaResponse.class );
@@ -87,6 +111,12 @@ public class ContaService {
 		totalContasPagas.setDataFim( dataFim );
 		
 		return totalContasPagas;
+	}
+	
+	public void importarContas( MultipartFile file ) {
+		List<ContaRequest> contas = FileServiceUtil.extrairRegistros( file );
+
+		saveAll( contas );
 	}
 
 	public void delete( Long contaId ) {

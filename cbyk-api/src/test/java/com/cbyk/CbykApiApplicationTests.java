@@ -85,42 +85,38 @@ public class CbykApiApplicationTests {
 
 	@Test
 	void testAtualizarConta() throws Exception {
-		given( contaService.findPorId( anyLong() ) ).willReturn( contaResponse );
-		given( contaService.update( any( ContaUpdateRequest.class ) ) ).willReturn( contaResponse );
+		given( contaService.atualizarConta( anyLong(), any( ContaUpdateRequest.class ) ) ).willReturn( contaResponse );
 
 		mockMvc.perform( put( BASE_URL + "/atualizar-conta/1" )
 			.with( httpBasic( USERNAME, PASSWORD ) ).contentType( MediaType.APPLICATION_JSON ).content( objectMapper.writeValueAsString( contaUpdateRequest ) ) )
 			.andExpect( status().isOk() )
 			.andExpect( jsonPath( "$.descricao", is( "Conta de Luz" ) ) );
 
-		verify( contaService, times( 1 ) ).findPorId( anyLong() );
-		verify( contaService, times( 1 ) ).update( any( ContaUpdateRequest.class ) );
+		verify( contaService, times( 1 ) ).atualizarConta( anyLong(), any( ContaUpdateRequest.class ) );
 	}
 
 	@Test
 	void testAtualizarSituacaoConta() throws Exception {
-		given( contaService.findPorId( anyLong() ) ).willReturn( contaResponse );
-		given( contaService.update( any( ContaUpdateRequest.class ) ) ).willReturn( contaResponse );
+		given( contaService.atualizarSituacaoConta( anyLong(), any( SituacaoContaEnum.class ) ) ).willReturn( contaResponse );
 
 		mockMvc.perform( put( BASE_URL + "/atualizar-situacao/1?situacao=" + SituacaoContaEnum.PAGA.name() )
 			.with( httpBasic( USERNAME, PASSWORD ) ).contentType( MediaType.APPLICATION_JSON ) )
 			.andExpect( status().isOk() )
 			.andExpect( jsonPath( "$.situacao", is( SituacaoContaEnum.PAGA.name() ) ) );
 
-		verify( contaService, times( 1 ) ).findPorId( anyLong() );
-		verify( contaService, times( 1 ) ).update( any( ContaUpdateRequest.class ) );
+		verify( contaService, times( 1 ) ).atualizarSituacaoConta( anyLong(), any( SituacaoContaEnum.class ) );
 	}
 
 	@Test
 	void testFindAllPageable() throws Exception {
-		given( contaService.findAllPageable( any( PageRequest.class ) ) ).willReturn( Arrays.asList( contaResponse ) );
+		given( contaService.findPaginado( any( PageRequest.class ) ) ).willReturn( Arrays.asList( contaResponse ) );
 
 		mockMvc.perform( get( BASE_URL + "/find-paginado?page=0&size=10" )
 			.with( httpBasic( USERNAME, PASSWORD ) ).contentType( MediaType.APPLICATION_JSON ) )
 			.andExpect( status().isOk() )
 			.andExpect( jsonPath( "$[0].descricao", is( "Conta de Luz" ) ) );
 
-		verify( contaService, times( 1 ) ).findAllPageable( any( PageRequest.class ) );
+		verify( contaService, times( 1 ) ).findPaginado( any( PageRequest.class ) );
 	}
 
 	@Test
