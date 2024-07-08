@@ -30,8 +30,8 @@ public class SwaggerConfig {
 			).externalDocs(
 			        new ExternalDocumentation()
 	                .description( "Ederson Patrício" )
-	                .url( "http://localhost" ) 
-				)
+				                .url( "http://localhost" ) 
+					)
 	        .components( new Components()
                 .addSecuritySchemes( "basicScheme", new SecurityScheme()
                 .type( SecurityScheme.Type.HTTP ).scheme( "basic" ) ) )
