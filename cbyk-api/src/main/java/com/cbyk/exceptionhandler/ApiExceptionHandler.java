@@ -52,7 +52,7 @@ public class ApiExceptionHandler {
 	@ExceptionHandler( MethodArgumentTypeMismatchException.class )
 	public ResponseEntity<Object> handleTypeMismatch( MethodArgumentTypeMismatchException ex ) {
 		return handleException( ex.getPropertyName(), ex.getValue().toString() );
-    }
+	}
 
 	@ExceptionHandler( InvalidFormatException.class )
 	public ResponseEntity<Object> handleInvalidFormatException( InvalidFormatException ex ) {
