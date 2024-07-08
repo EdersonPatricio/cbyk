@@ -13,28 +13,28 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 
 @Configuration
 public class SwaggerConfig {
-	
+
 	@Bean
-    OpenAPI openAPI() {		
+	OpenAPI openAPI() {
 		return new OpenAPI()
-			.info( new Info()
-				.title( "SPRING REST API" )
-				.description( "Documentação da API REST" )
-				.version( "1.0" )
-				.termsOfService( "Termo de uso: Open Source" )
+	        .info( new Info()
+                .title( "SPRING REST API" )
+                .description( "Documentação da API REST" )
+                .version( "1.0" )
+                .termsOfService( "Termo de uso: Open Source" )
 				.license( 
 					new License()
 					.name( "Apache 2.0" )
 					.url( "http://localhost" ) 
 				)
 			).externalDocs(
-				new ExternalDocumentation()
-					.description( "Ederson Patrício" )
-					.url( "http://localhost" ) 
+			        new ExternalDocumentation()
+	                .description( "Ederson Patrício" )
+	                .url( "http://localhost" ) 
 				)
-				.components( new Components()
-					.addSecuritySchemes( "basicScheme", new SecurityScheme()
-					.type( SecurityScheme.Type.HTTP ).scheme( "basic" ) ) )
-				.addSecurityItem( new SecurityRequirement().addList( "basicScheme" ) );
+	        .components( new Components()
+                .addSecuritySchemes( "basicScheme", new SecurityScheme()
+                .type( SecurityScheme.Type.HTTP ).scheme( "basic" ) ) )
+	        .addSecurityItem( new SecurityRequirement().addList( "basicScheme" ) );
 	}
 }

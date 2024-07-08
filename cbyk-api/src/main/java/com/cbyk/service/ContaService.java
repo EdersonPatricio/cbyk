@@ -34,24 +34,24 @@ public class ContaService {
 	public ContaResponse update( ContaRequest request ) {
 		return salvarConta( request );
 	}
-	
+
 	private ContaResponse salvarConta( ContaRequest request ) {
 		Conta conta = ObjectConverter.convert( request, Conta.class );
-		
+
 		return ObjectConverter.convert( contaRepository.save( conta ), ContaResponse.class );
 	}
-	
+
 	public void saveAll( List<Conta> contas ) {
 		contaRepository.saveAll( contas );
 	}
-	
+
 	public ContaResponse findPorId( Long contaId ) {
 		Optional<Conta> result = contaRepository.findById( contaId );
-		
+
 		if ( result.isPresent() ) {
 			return ObjectConverter.convert( result.get(), ContaResponse.class );
 		}
-		
+
 		return null;
 	}
 
@@ -75,19 +75,19 @@ public class ContaService {
 	
 	public TotalContasPagasResponse calcularTotalPagoPorPeriodo( LocalDate dataInicio, LocalDate dataFim ) {
 		TotalContasPagasResponse totalContasPagas = contaRepository.findAll().stream()
-			.filter( conta -> Objects.nonNull( conta.getDataPagamento() ) &&
-					( conta.getDataPagamento().isEqual( dataInicio ) || conta.getDataPagamento().isAfter( dataInicio ) ) &&
-					( conta.getDataPagamento().isEqual( dataFim ) || conta.getDataPagamento().isBefore( dataFim ) ) )
-			.collect( Collectors.teeing(
-					Collectors.reducing( BigDecimal.ZERO, Conta::getValor, BigDecimal::add ),
-					Collectors.counting(),
-					TotalContasPagasResponse::new
+	        .filter( conta -> Objects.nonNull( conta.getDataPagamento() ) &&
+	                ( conta.getDataPagamento().isEqual( dataInicio ) || conta.getDataPagamento().isAfter( dataInicio ) ) &&
+	                ( conta.getDataPagamento().isEqual( dataFim ) || conta.getDataPagamento().isBefore( dataFim ) ) )
+	        .collect( Collectors.teeing(
+	                Collectors.reducing( BigDecimal.ZERO, Conta::getValor, BigDecimal::add ),
+	                Collectors.counting(),
+	                TotalContasPagasResponse::new
 			) );
 		totalContasPagas.setDataInicio( dataInicio );
 		totalContasPagas.setDataFim( dataFim );
 		
 		return totalContasPagas;
-    }
+	}
 
 	public void delete( Long contaId ) {
 		contaRepository.deleteById( contaId );

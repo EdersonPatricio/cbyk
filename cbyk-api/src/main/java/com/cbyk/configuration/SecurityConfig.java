@@ -34,13 +34,13 @@ public class SecurityConfig {
 	public UserDetailsService userDetailsService( PasswordEncoder passwordEncoder ) {
 		var userDetailsManager = new InMemoryUserDetailsManager();
 		userDetailsManager.createUser( User.withUsername( "user" )
-			.password( passwordEncoder.encode( "password" ) )
-			.roles( "USER" )
-			.build() );
+	        .password( passwordEncoder.encode( "password" ) )
+	        .roles( "USER" )
+	        .build() );
         
-        return userDetailsManager;
-    }
-	
+		return userDetailsManager;
+	}
+
 	@Bean
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();

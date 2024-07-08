@@ -66,7 +66,7 @@ public class ContaServiceTest {
 		contaService.saveAll( contas );
 		verify( contaRepository, times( 1 ) ).saveAll( contas );
 	}
-	
+
 	@Test
 	void testUpdate() {
 		when( contaRepository.save( any( Conta.class ) ) ).thenReturn( conta );
